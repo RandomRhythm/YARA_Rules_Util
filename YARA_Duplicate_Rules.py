@@ -28,7 +28,7 @@ import datetime
 def build_cli_parser():
     parser = OptionParser(usage="%prog [options]", description="Find duplicate YARA rules in a directory")
     parser.add_option("-r", "--remove", help="Remove duplicate rules", action="store_true")
-    parser.add_option("-d", "--directory", action="store", default=None, dest="strYARADirectory",
+    parser.add_option("-d", "--directory", action="store", default=None, dest="YARA_Directory_Path",
                       help="Folder path to directory containing YARA files")
     return parser
     
@@ -82,14 +82,17 @@ parser = build_cli_parser()
 opts, args = parser.parse_args(sys.argv[1:])
 if opts.remove:
   boolRemoveDuplicate = True
+if opts.YARA_Directory_Path:
+  strYARADirectory = opts.YARA_Directory_Path
 dictRuleName = dict()
+print strYARADirectory
 logToFile(strCurrentDirectory + "/duplicate.log","Started " + str(datetime.datetime.now()) + "\n", False, "a")
-for i in os.listdir(strCurrentDirectory):
+for i in os.listdir(strYARADirectory):
   if i.endswith(".yar") or i.endswith(".yara"): 
       ##print i
-      with open(i) as f:
+      with open(strYARADirectory + '/' + i) as f:
         lines = f.readlines()
-        ProcessRule(lines, strCurrentDirectory + '/' + i)
+        ProcessRule(lines, strYARADirectory + '/' + i)
       continue
   else:
       continue
