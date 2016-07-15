@@ -17,8 +17,8 @@ Options:
   
   -d YARA_DIRECTORY_PATH, --directory=YARA_DIRECTORY_PATH
   
-                        Folder path to directory containing YARA files
+  Folder path to directory containing YARA files
 
 
 Example:
-YARA_Duplicate_Rules.py -d "C:\YARAFolder" -r
+      YARA_Duplicate_Rules.py -d "C:\YARAFolder" -r
