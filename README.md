@@ -4,7 +4,7 @@ YARA duplicate rule detection and removal
 
 This script was written to deal with YARA error “duplicated identifier” in Cuckoo sandbox:
 
-ERROR: Unable to match Yara signatures: /path/to/file.yar(85): duplicated identifier "RuleName" 
+    ERROR: Unable to match Yara signatures: /path/to/file.yar(85): duplicated identifier "RuleName" 
 
 
 Parameters are optional. If you don’t provide the directory path the current directory is used. 
