@@ -16,7 +16,7 @@ Options:
   -r, --remove          Remove duplicate rules
   
   -d YARA_DIRECTORY_PATH, --directory=YARA_DIRECTORY_PATH
-                      Folder path to directory containing YARA files
+                      (Folder path to directory containing YARA files)
 
 
 Example:
