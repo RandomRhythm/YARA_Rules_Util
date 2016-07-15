@@ -21,4 +21,5 @@ Options:
 
 
 Example:
+
                   YARA_Duplicate_Rules.py -d "C:\YARAFolder" -r
