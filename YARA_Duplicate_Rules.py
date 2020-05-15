@@ -30,6 +30,7 @@ def build_cli_parser():
     parser.add_option("-r", "--remove", help="Remove duplicate rules", action="store_true")
     parser.add_option("-d", "--directory", action="store", default=None, dest="YARA_Directory_Path",
                       help="Folder path to directory containing YARA files")
+    parser.add_option("-m", "--modify", help="Modify the file to rename duplicate rules", action="store_true")
     return parser
     
 def ProcessRule(lstRuleFile, strYARApath):
@@ -38,6 +39,7 @@ def ProcessRule(lstRuleFile, strYARApath):
   boolExcludeLine = False
   boolOverwrite = False
   for strRuleLine in lstRuleFile:
+    strRuleOut = strRuleLine
     if strRuleLine[:5] == "rule ":
       strRuleName = strRuleLine[-(len(strRuleLine) -5):]
       strRuleName = strRuleName[:len(strRuleName) -1]
@@ -51,14 +53,24 @@ def ProcessRule(lstRuleFile, strYARApath):
       print (strRuleName)
       if strRuleName in dictRuleName:
         #print "duplicate rule in file " + strYARApath + " : " + strRuleName
-        boolExcludeLine = True
         strLogOut = strLogOut + "Duplicate rule " + "\n" + strRuleName + " in " + dictRuleName[strRuleName]  + "\n" + strRuleName + " in " + strYARApath + "\n"
-        if boolRemoveDuplicate == True:
-          boolOverwrite = True
-          strLogOut = strLogOut + "Removed rule " + strRuleName + " from " + strYARApath + "\n"
+        if boolRename == False:
+            boolExcludeLine = True
+            
+            if boolRemoveDuplicate == True:
+              boolOverwrite = True
+              strLogOut = strLogOut + "Removed rule " + strRuleName + " from " + strYARApath + "\n"
+        else:
+            intCount = 1
+            while strRuleName + "_" + str(intCount) in dictRuleName:
+                intCount += 1
+            strRuleOut = str.replace(strRuleOut, strRuleName, strRuleName + "_" + str(intCount))
+            strLogOut = strLogOut + "Renamed " + strRuleName + " to " + strRuleName + "_" + str(intCount) + " from " + strYARApath + "\n"
+            strYARAout = strYARAout + strRuleOut
+            boolOverwrite = True
       else:
         dictRuleName[strRuleName] = strYARApath
-        strYARAout = strYARAout + strRuleLine
+        strYARAout = strYARAout + strRuleOut
         boolExcludeLine = False
     elif boolExcludeLine == False:
       strYARAout = strYARAout + strRuleLine
@@ -76,6 +88,7 @@ def logToFile(strfilePathOut, strDataToLog, boolDeleteFile, strWriteMode):
     target.close()
 
 boolRemoveDuplicate = False
+boolRename = False
 strCurrentDirectory = os.getcwd()
 strYARADirectory = os.getcwd()
 parser = build_cli_parser()
@@ -84,6 +97,8 @@ if opts.remove:
   boolRemoveDuplicate = True
 if opts.YARA_Directory_Path:
   strYARADirectory = opts.YARA_Directory_Path
+if opts.modify:
+  boolRename = True 
 dictRuleName = dict()
 print (strYARADirectory)
 logToFile(strCurrentDirectory + "/duplicate.log","Started " + str(datetime.datetime.now()) + "\n", False, "a")
