@@ -3,7 +3,7 @@
 #Rule names are echoed to standard out.
 #Be sure to backup your data before using the remove option.
 
-#Copyright (c) 2016 Ryan Boyle randomrhythm@rhythmengineering.com.
+#Copyright (c) 2020 Ryan Boyle randomrhythm@rhythmengineering.com.
 #All rights reserved.
 
 #This program is free software: you can redistribute it and/or modify
@@ -48,7 +48,7 @@ def ProcessRule(lstRuleFile, strYARApath):
       if strRuleName[-1:] == " ":
         while strRuleName[-1:] == " ":
           strRuleName = strRuleName[:-1]        
-      print strRuleName
+      print (strRuleName)
       if strRuleName in dictRuleName:
         #print "duplicate rule in file " + strYARApath + " : " + strRuleName
         boolExcludeLine = True
@@ -85,7 +85,7 @@ if opts.remove:
 if opts.YARA_Directory_Path:
   strYARADirectory = opts.YARA_Directory_Path
 dictRuleName = dict()
-print strYARADirectory
+print (strYARADirectory)
 logToFile(strCurrentDirectory + "/duplicate.log","Started " + str(datetime.datetime.now()) + "\n", False, "a")
 for i in os.listdir(strYARADirectory):
   if i.endswith(".yar") or i.endswith(".yara"): 
