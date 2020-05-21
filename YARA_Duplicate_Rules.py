@@ -30,14 +30,18 @@ def build_cli_parser():
     parser.add_option("-r", "--remove", help="Remove duplicate rules", action="store_true")
     parser.add_option("-d", "--directory", action="store", default=None, dest="YARA_Directory_Path",
                       help="Folder path to directory containing YARA files")
+    parser.add_option("-c", "--consolidate", action="store", default=None, dest="YARA_File_Path",
+                      help="File path for consolidated YARA file")
     parser.add_option("-m", "--modify", help="Modify the file to rename duplicate rules", action="store_true")
     return parser
     
-def ProcessRule(lstRuleFile, strYARApath):
+def ProcessRule(lstRuleFile, strYARApath, strOutPath):
   strYARAout = ""
   strLogOut = ""
   boolExcludeLine = False
   boolOverwrite = False
+  if strOutPath == "":
+    strOutPath = lstRuleFile
   for strRuleLine in lstRuleFile:
     strRuleOut = strRuleLine
     if strRuleLine[:5] == "rule ":
@@ -74,7 +78,10 @@ def ProcessRule(lstRuleFile, strYARApath):
         boolExcludeLine = False
     elif boolExcludeLine == False:
       strYARAout = strYARAout + strRuleLine
-  if boolOverwrite == True:
+  if strOutPath != strYARApath:
+    strYARAout = strYARAout + "\n" #extra new line to separate rules in combined file
+    logToFile(strOutPath,strYARAout, False, "a")
+  elif boolOverwrite == True:
     logToFile(strYARApath,strYARAout, True, "w")
   if len(strLogOut) > 1:
     strLogOut = "-------------" + "\n" + strLogOut  
@@ -89,6 +96,7 @@ def logToFile(strfilePathOut, strDataToLog, boolDeleteFile, strWriteMode):
 
 boolRemoveDuplicate = False
 boolRename = False
+outputPath = ""
 strCurrentDirectory = os.getcwd()
 strYARADirectory = os.getcwd()
 parser = build_cli_parser()
@@ -97,17 +105,22 @@ if opts.remove:
   boolRemoveDuplicate = True
 if opts.YARA_Directory_Path:
   strYARADirectory = opts.YARA_Directory_Path
+else:
+  print ("Missing required parameter argument")
+  exit()
 if opts.modify:
-  boolRename = True 
+  boolRename = True
+if opts.YARA_File_Path:
+  outputPath = opts.YARA_File_Path
 dictRuleName = dict()
 print (strYARADirectory)
 logToFile(strCurrentDirectory + "/duplicate.log","Started " + str(datetime.datetime.now()) + "\n", False, "a")
 for i in os.listdir(strYARADirectory):
   if i.endswith(".yar") or i.endswith(".yara"): 
-      ##print i
+      ##print (i)
       with open(strYARADirectory + '/' + i) as f:
         lines = f.readlines()
-        ProcessRule(lines, strYARADirectory + '/' + i)
+        ProcessRule(lines, strYARADirectory + '/' + i, outputPath)
       continue
   else:
       continue
