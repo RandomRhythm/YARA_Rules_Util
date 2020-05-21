@@ -41,7 +41,7 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
   boolExcludeLine = False
   boolOverwrite = False
   if strOutPath == "":
-    strOutPath = lstRuleFile
+    strOutPath = strYARApath
   for strRuleLine in lstRuleFile:
     strRuleOut = strRuleLine
     if strRuleLine[:5] == "rule ":
