@@ -33,6 +33,11 @@ def build_cli_parser():
     parser.add_option("-c", "--consolidate", action="store", default=None, dest="YARA_File_Path",
                       help="File path for consolidated YARA file")
     parser.add_option("-m", "--modify", help="Modify the file to rename duplicate rules", action="store_true")
+    parser.add_option("-i", "--index", action="store", default=None, dest="YARA_Index_Path",
+                      help="Create and index of YARA files") 
+    parser.add_option("-b", "--BaseDirectory", action="store", default=None, dest="Base_Folder_Path",
+                      help="Base folder to mark as current directory ./") 
+    parser.add_option("-s", "--subdirectories", help="Recurse into subdirectories", action="store_true")
     return parser
     
 def ProcessRule(lstRuleFile, strYARApath, strOutPath):
@@ -94,7 +99,7 @@ def logToFile(strfilePathOut, strDataToLog, boolDeleteFile, strWriteMode):
     target.write(strDataToLog)
     target.close()
 
-def createIndexFile(boolNew, strFilePath, yaraPath):
+def createIndexFile(boolNew, strFilePath, yaraPath, baseDir): # if index creation is not working on Windows check that you are escaping backslashes
   includePath = ""
   if boolNew == True:
     logToFile(strFilePath, "/*\n", False, "a")
@@ -107,24 +112,48 @@ def createIndexFile(boolNew, strFilePath, yaraPath):
     else:
       splitChar = "/"
     arrayPath = yaraPath.split(splitChar) #need to determine the relative path between strFilePath and yaraPath. If different then use full file path. If same then truncate appropiatly
-    for i in range(len(arrayPath),len(arrayPath) -2, -1):
+    for i in range(len(arrayPath),0, -1):
       if includePath == "":
         includePath = arrayPath[i -1]
       else:
-        includePath = arrayPath[i] + "/" + includePath
-    includePath = "./" + includePath
+        includePath = arrayPath[i -1] + "/" + includePath
+      if arrayPath[i -1] == baseDir:
+        break
+    if i != 1:
+      includePath = "./" + includePath
+    else:
+      includePath = yaraPath
     includeStatement = "include \"" + includePath + "\""
-    logToFile(strFilePath, includeStatement, False, "a")
+    logToFile(strFilePath, includeStatement + "\n", False, "a")
+
+def fast_scandir(dirname): #https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory/38245063
+    subfolders= [f.path for f in os.scandir(dirname) if f.is_dir()]
+    for dirname in list(subfolders):
+        subfolders.extend(fast_scandir(dirname))
+    return subfolders
 
 boolRemoveDuplicate = False
 boolRename = False
+boolRecurse = False
+indexPath = ""
 outputPath = ""
+baseDirectory = ""
+dictExclude = {"deprecated", "index.yar", "_index", "index_"}
 strCurrentDirectory = os.getcwd()
 strYARADirectory = os.getcwd()
 parser = build_cli_parser()
 opts, args = parser.parse_args(sys.argv[1:])
 if opts.remove:
   boolRemoveDuplicate = True
+if opts.subdirectories:  
+  boolRecurse = True
+  print("recusing subdirectories")
+if opts.YARA_Index_Path:
+  indexPath = opts.YARA_Index_Path
+  print("creating index file: " + indexPath)
+  boolNewIndex = True
+if opts.Base_Folder_Path:
+  baseDirectory = opts.Base_Folder_Path
 if opts.YARA_Directory_Path:
   strYARADirectory = opts.YARA_Directory_Path
 else:
@@ -137,15 +166,32 @@ if opts.YARA_File_Path:
 dictRuleName = dict()
 print (strYARADirectory)
 logToFile(strCurrentDirectory + "/duplicate.log","Started " + str(datetime.datetime.now()) + "\n", False, "a")
-for i in os.listdir(strYARADirectory):
-  if i.endswith(".yar") or i.endswith(".yara"): 
-      ##print (i)
-      with open(strYARADirectory + '/' + i) as f:
-        lines = f.readlines()
-        ProcessRule(lines, strYARADirectory + '/' + i, outputPath)
-      continue
-  else:
-      continue
+
+if boolRecurse == True:
+  parentDir = fast_scandir(strYARADirectory)
+  parentDir.append(strYARADirectory)
+  parentDir.sort()
+else:
+  parentDir = {strYARADirectory}
+print(parentDir)
+for scanDirs in parentDir:
+  for i in os.listdir(scanDirs):
+    if i.endswith(".yar") or i.endswith(".yara"): 
+        print (i)
+        with open(scanDirs + '/' + i) as f:
+          lines = f.readlines()
+          ProcessRule(lines, scanDirs + '/' + i, outputPath)
+        if indexPath != "":
+          boolIndexExclude = False
+          for excludeItem in dictExclude:
+            if excludeItem in scanDirs + '/' + i:
+              boolIndexExclude = True
+          if boolIndexExclude == False:
+            createIndexFile(boolNewIndex, indexPath,  scanDirs + '/' + i, baseDirectory)
+            boolNewIndex = False
+            #print("indexing file: " +  scanDirs + '/' + i)
+    else:
+        continue
 logToFile(strCurrentDirectory + "/duplicate.log","Completed " + str(datetime.datetime.now()) + "\n", False, "a")        
         
 
