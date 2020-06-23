@@ -18,7 +18,30 @@ Options:
   -d YARA_DIRECTORY_PATH, --directory=YARA_DIRECTORY_PATH
                       (Folder path to directory containing YARA files)
 
-
-Example:
+  -c YARA_FILE_PATH, --consolidate=YARA_FILE_PATH
+                        File path for consolidated YARA file
+                        
+  -m, --modify          Modify the file to rename duplicate rules
+  
+  -i YARA_INDEX_PATH, --index=YARA_INDEX_PATH
+                        Create and index of YARA files
+                        
+  -b BASE_FOLDER_PATH, --BaseDirectory=BASE_FOLDER_PATH
+                        Base folder to mark as current directory ./
+                        
+  -s, --subdirectories  Recurse into subdirectories
+  
+  
+Remove duplicates example:
 
                   YARA_Duplicate_Rules.py -d "C:\YARAFolder" -r
+
+
+Create index for a directory example:
+
+                  YARA_Duplicate_Rules.py -d C:\YARA\rules-master\email -i C:\YARA\rules-master\email_index_new.yar -b rules-master
+
+                  
+Create index for subdirectories example:
+
+                  YARA_Duplicate_Rules.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s              
