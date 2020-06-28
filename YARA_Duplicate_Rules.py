@@ -38,6 +38,7 @@ def build_cli_parser():
     parser.add_option("-b", "--BaseDirectory", action="store", default=None, dest="Base_Folder_Path",
                       help="Base folder to mark as current directory ./") 
     parser.add_option("-s", "--subdirectories", help="Recurse into subdirectories", action="store_true")
+    parser.add_option("-v", "--verboselog", help="log all rules and the associated file", action="store_true")
     return parser
     
 def ProcessRule(lstRuleFile, strYARApath, strOutPath):
@@ -49,8 +50,13 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
     strOutPath = strYARApath
   for strRuleLine in lstRuleFile:
     strRuleOut = strRuleLine
+    nameDepth = 0
     if strRuleLine[:5] == "rule ":
-      strRuleName = strRuleLine[-(len(strRuleLine) -5):]
+      nameDepth = 5
+    elif strRuleLine[:13] == "private rule ":
+      nameDepth = 13
+    if nameDepth != 0:  
+      strRuleName = strRuleLine[-(len(strRuleLine) -nameDepth):]
       strRuleName = strRuleName[:len(strRuleName) -1]
       if strRuleName[-1:] == "\r":
         strRuleName = strRuleName[:-1]
@@ -58,8 +64,10 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
         strRuleName = strRuleName[:-1]
       if strRuleName[-1:] == " ":
         while strRuleName[-1:] == " ":
-          strRuleName = strRuleName[:-1]        
+          strRuleName = strRuleName[:-1]
       print (strRuleName)
+      if boolLogging == True:
+        logToFile(strCurrentDirectory + "/all_rules.log",strRuleName + "," + strYARApath + "\n", False, "a")
       if strRuleName in dictRuleName:
         #print "duplicate rule in file " + strYARApath + " : " + strRuleName
         strLogOut = strLogOut + "Duplicate rule " + "\n" + strRuleName + " in " + dictRuleName[strRuleName]  + "\n" + strRuleName + " in " + strYARApath + "\n"
@@ -117,7 +125,7 @@ def createIndexFile(boolNew, strFilePath, yaraPath, baseDir): # if index creatio
         includePath = arrayPath[i -1]
       else:
         includePath = arrayPath[i -1] + "/" + includePath
-      if arrayPath[i -1] == baseDir:
+      if arrayPath[i -2] == baseDir:
         break
     if i != 1:
       includePath = "./" + includePath
@@ -135,6 +143,7 @@ def fast_scandir(dirname): #https://stackoverflow.com/questions/973473/getting-a
 boolRemoveDuplicate = False
 boolRename = False
 boolRecurse = False
+boolLogging = False
 indexPath = ""
 outputPath = ""
 baseDirectory = ""
@@ -148,6 +157,8 @@ if opts.remove:
 if opts.subdirectories:  
   boolRecurse = True
   print("recusing subdirectories")
+if opts.verboselog:
+  boolLogging = True
 if opts.YARA_Index_Path:
   indexPath = opts.YARA_Index_Path
   print("creating index file: " + indexPath)
