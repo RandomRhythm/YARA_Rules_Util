@@ -1,8 +1,8 @@
-# YARA_Duplicate_Rules
-YARA duplicate rule detection and removal
+# YARA_Rules_Util
+YARA duplicate rule detection and removal. YARA rule index creation. YARA rule file merger.
 
 
-This script was written to deal with YARA error “duplicated identifier” in Cuckoo sandbox:
+This script was initally written to deal with YARA error “duplicated identifier” in Cuckoo sandbox:
 
     ERROR: Unable to match Yara signatures: /path/to/file.yar(85): duplicated identifier "RuleName" 
 
@@ -31,17 +31,19 @@ Options:
                         
   -s, --subdirectories  Recurse into subdirectories
   
+  -v, --verboselog      log all rules and the associated file to CSV
+  
   
 Remove duplicates example:
 
-                  YARA_Duplicate_Rules.py -d "C:\YARAFolder" -r
+                  YARA_Util.py -d "C:\YARAFolder" -r
 
 
 Create index for a directory example:
 
-                  YARA_Duplicate_Rules.py -d C:\YARA\rules-master\email -i C:\YARA\rules-master\email_index_new.yar -b rules-master
+                  YARA_Util.py -d C:\YARA\rules-master\email -i C:\YARA\rules-master\email_index_new.yar -b rules-master
 
                   
 Create index for subdirectories example:
 
-                  YARA_Duplicate_Rules.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s              
+                  YARA_Util.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s              
