@@ -46,4 +46,9 @@ Create index for a directory example:
                   
 Create index for subdirectories example:
 
-                  YARA_Util.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s              
+                  YARA_Util.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s
+
+
+Consolidate YARA rules of a [certain file type](https://github.com/RandomRhythm/YARA_Rules_Project_Sorted_Ruleset) example:
+
+                  YARA_Util.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s -t php      
