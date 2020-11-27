@@ -200,17 +200,17 @@ for scanDirs in parentDir:
         with open(scanDirs + '/' + i) as f:
           lines = f.readlines()
           ProcessRule(lines, scanDirs + '/' + i, outputPath)
-        if indexPath != "":
-          boolIndexExclude = False
-          for excludeItem in dictExclude:
-            if excludeItem in scanDirs + '/' + i:
-              boolIndexExclude = True
-          if folderMatch != "" and not scanDirs.endswith(folderMatch):
+      if indexPath != "": #create index
+        boolIndexExclude = False
+        for excludeItem in dictExclude:
+          if excludeItem in scanDirs + '/' + i:
             boolIndexExclude = True
-          if boolIndexExclude == False:
-            createIndexFile(boolNewIndex, indexPath,  scanDirs + '/' + i, baseDirectory)
-            boolNewIndex = False
-            #print("indexing file: " +  scanDirs + '/' + i)
+        if folderMatch != "" and not scanDirs.endswith(folderMatch):
+          boolIndexExclude = True
+        if boolIndexExclude == False:
+          createIndexFile(boolNewIndex, indexPath,  scanDirs + '/' + i, baseDirectory)
+          boolNewIndex = False
+          #print("indexing file: " +  scanDirs + '/' + i)
     else:
         continue
 logToFile(strCurrentDirectory + "/duplicate.log","Completed " + str(datetime.datetime.now()) + "\n", False, "a")        
