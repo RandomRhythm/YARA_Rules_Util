@@ -121,7 +121,7 @@ def createIndexFile(boolNew, strFilePath, yaraPath, baseDir): # if index creatio
       splitChar = "\\"
     else:
       splitChar = "/"
-    arrayPath = yaraPath.split(splitChar) #need to determine the relative path between strFilePath and yaraPath. If different then use full file path. If same then truncate appropiatly
+    arrayPath = yaraPath.split(splitChar) #need to determine the relative path between strFilePath and yaraPath. If different then use full file path. If same then truncate appropriatly
     for i in range(len(arrayPath),0, -1):
       if includePath == "":
         includePath = arrayPath[i -1]
@@ -193,14 +193,15 @@ print(parentDir)
 for scanDirs in parentDir:
   for i in os.listdir(scanDirs):
     if i.endswith(".yar") or i.endswith(".yara"): 
-      if opts.YARA_File_Path != '' and folderMatch != '':
-        if not scanDirs.endswith(folderMatch):
+      if opts.YARA_File_Path != '' and folderMatch != '': #File path for consolidated YARA file and folderMatch file type both provided  
+        if not scanDirs.endswith(folderMatch): # Not the file type specified so move to next file
           continue
+      if indexPath == "":
         print (i)
         with open(scanDirs + '/' + i) as f:
           lines = f.readlines()
           ProcessRule(lines, scanDirs + '/' + i, outputPath)
-      if indexPath != "": #create index
+      else: #create index
         boolIndexExclude = False
         for excludeItem in dictExclude:
           if excludeItem in scanDirs + '/' + i:
