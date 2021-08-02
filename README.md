@@ -25,6 +25,9 @@ Options:
   
   -i YARA_INDEX_PATH, --index=YARA_INDEX_PATH
                         Create and index of YARA files
+
+  -t YARA_INDEX_TYPE, --type=YARA_INDEX_TYPE
+                        Index YARA files based on parent folder match.
                         
   -b BASE_FOLDER_PATH, --BaseDirectory=BASE_FOLDER_PATH
                         Base folder to mark as current directory ./
@@ -51,4 +54,4 @@ Create index for subdirectories example:
 
 Consolidate YARA rules of a [certain file type](https://github.com/RandomRhythm/YARA_Rules_Project_Sorted_Ruleset) example:
 
-                  YARA_Util.py -d C:\YARA\rules-master -i C:\YARA\rules-master\index_new.yar -b rules-master -s -t php      
+                  YARA_Util.py -d C:\YARA\rules-master -c C:\YARA\PHP_Rules.yar -b rules-master -s -t php      
