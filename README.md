@@ -54,4 +54,8 @@ Create index for subdirectories example:
 
 Consolidate YARA rules of a [certain file type](https://github.com/RandomRhythm/YARA_Rules_Project_Sorted_Ruleset) example:
 
-                  YARA_Util.py -d C:\YARA\rules-master -c C:\YARA\PHP_Rules.yar -b rules-master -s -t php      
+                  YARA_Util.py -d C:\YARA\rules-master -c C:\YARA\PHP_Rules.yar -b rules-master -s -t php
+
+References:
+
+[https://www.optiv.com/insights/source-zero/blog/selective-yara-scanning-whats-your-type](https://www.optiv.com/insights/source-zero/blog/selective-yara-scanning-whats-your-type)
