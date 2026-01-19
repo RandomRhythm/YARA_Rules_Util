@@ -24,7 +24,7 @@ Options:
   -m, --modify          Modify the file to rename duplicate rules
   
   -i YARA_INDEX_PATH, --index=YARA_INDEX_PATH
-                        Create and index of YARA files
+                        Create an index of YARA files
 
   -t YARA_INDEX_TYPE, --type=YARA_INDEX_TYPE
                         Index YARA files based on parent folder match.
