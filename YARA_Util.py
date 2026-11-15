@@ -100,9 +100,9 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
       logToFile(strOutPath,strYARAout, False, "a", "")
   elif boolOverwrite == True:
     logToFile(strYARApath,strYARAout, True, "w", "")
-  if len(strLogOut) > 1:
-    strLogOut = "-------------" + "\n" + strLogOut  
-  logToFile(strCurrentDirectory + "/duplicate.log",strLogOut, False, "a")
+  if strLogOut != "": #only open the log when there is something to record
+    strLogOut = "-------------" + "\n" + strLogOut
+    logToFile(strCurrentDirectory + "/duplicate.log",strLogOut, False, "a")
   
 def logToFile(strfilePathOut, strDataToLog, boolDeleteFile, strWriteMode, strNewline=None):
     #UTF-8 with surrogateescape so bytes that aren't valid UTF-8 are written back unchanged.
