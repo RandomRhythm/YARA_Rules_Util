@@ -137,10 +137,20 @@ def createIndexFile(boolNew, strFilePath, yaraPath, baseDir): # if index creatio
   includeStatement = "include \"" + includePath + "\""
   logToFile(strFilePath, includeStatement + "\n", False, "a")
 
-def fast_scandir(dirname): #https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory/38245063
-    subfolders= [f.path for f in os.scandir(dirname) if f.is_dir()]
-    for dirname in list(subfolders):
-        subfolders.extend(fast_scandir(dirname))
+def fast_scandir(dirname, setVisited=None): #https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory/38245063
+    #Track resolved paths so symlinks/junctions that loop back (or point to a
+    #folder already scanned) are not followed again
+    if setVisited is None:
+        setVisited = {os.path.normcase(os.path.realpath(dirname))}
+    subfolders = []
+    for f in os.scandir(dirname):
+        if f.is_dir():
+            strRealPath = os.path.normcase(os.path.realpath(f.path))
+            if strRealPath in setVisited:
+                continue
+            setVisited.add(strRealPath)
+            subfolders.append(f.path)
+            subfolders.extend(fast_scandir(f.path, setVisited))
     return subfolders
 
 boolRemoveDuplicate = False
