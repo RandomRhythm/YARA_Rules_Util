@@ -24,6 +24,11 @@ import os
 from optparse import OptionParser
 import sys
 import datetime
+import re
+
+#Matches a rule declaration with optional private/global modifiers and leading whitespace.
+#Only the identifier is captured, so tags, comments and braces on the same line are ignored.
+reRuleDecl = re.compile(r"^\s*(?:(?:private|global)\s+)*rule\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)")
 
 def build_cli_parser():
     parser = OptionParser(usage="%prog [options]", description="Find duplicate YARA rules in a directory")
@@ -52,21 +57,9 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
     strOutPath = strYARApath
   for strRuleLine in lstRuleFile:
     strRuleOut = strRuleLine
-    nameDepth = 0
-    if strRuleLine[:5] == "rule ":
-      nameDepth = 5
-    elif strRuleLine[:13] == "private rule ":
-      nameDepth = 13
-    if nameDepth != 0:  
-      strRuleName = strRuleLine[-(len(strRuleLine) -nameDepth):]
-      strRuleName = strRuleName[:len(strRuleName) -1]
-      if strRuleName[-1:] == "\r":
-        strRuleName = strRuleName[:-1]
-      if strRuleName[-1:] == "{":
-        strRuleName = strRuleName[:-1]
-      if strRuleName[-1:] == " ":
-        while strRuleName[-1:] == " ":
-          strRuleName = strRuleName[:-1]
+    ruleMatch = reRuleDecl.match(strRuleLine)
+    if ruleMatch:
+      strRuleName = ruleMatch.group("name")
       print (strRuleName)
       if boolLogging == True:
         logToFile(strCurrentDirectory + "/all_rules.csv",strRuleName + "," + strYARApath + "\n", False, "a")
@@ -83,8 +76,11 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
             intCount = 1
             while strRuleName + "_" + str(intCount) in dictRuleName:
                 intCount += 1
-            strRuleOut = str.replace(strRuleOut, strRuleName, strRuleName + "_" + str(intCount))
-            strLogOut = strLogOut + "Renamed " + strRuleName + " to " + strRuleName + "_" + str(intCount) + " from " + strYARApath + "\n"
+            strNewName = strRuleName + "_" + str(intCount)
+            #replace only the rule identifier, not other text on the line
+            strRuleOut = strRuleLine[:ruleMatch.start("name")] + strNewName + strRuleLine[ruleMatch.end("name"):]
+            dictRuleName[strNewName] = strYARApath
+            strLogOut = strLogOut + "Renamed " + strRuleName + " to " + strNewName + " from " + strYARApath + "\n"
             strYARAout = strYARAout + strRuleOut
             boolOverwrite = True
       else:
