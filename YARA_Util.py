@@ -25,6 +25,8 @@ from optparse import OptionParser
 import sys
 import datetime
 import re
+import csv
+import io
 
 #Matches a rule declaration with optional private/global modifiers and leading whitespace.
 #Only the identifier is captured, so tags, comments and braces on the same line are ignored.
@@ -62,7 +64,10 @@ def ProcessRule(lstRuleFile, strYARApath, strOutPath):
       strRuleName = ruleMatch.group("name")
       print (strRuleName)
       if boolLogging == True:
-        logToFile(strCurrentDirectory + "/all_rules.csv",strRuleName + "," + strYARApath + "\n", False, "a")
+        #csv module quotes fields so commas or quotes in the path don't break the row
+        csvLine = io.StringIO()
+        csv.writer(csvLine, lineterminator="\n").writerow([strRuleName, strYARApath])
+        logToFile(strCurrentDirectory + "/all_rules.csv", csvLine.getvalue(), False, "a")
       if strRuleName in dictRuleName:
         #print "duplicate rule in file " + strYARApath + " : " + strRuleName
         strLogOut = strLogOut + "Duplicate rule " + "\n" + strRuleName + " in " + dictRuleName[strRuleName]  + "\n" + strRuleName + " in " + strYARApath + "\n"
